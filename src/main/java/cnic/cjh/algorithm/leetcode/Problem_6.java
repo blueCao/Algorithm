@@ -53,16 +53,32 @@ public class Problem_6
     		}
     	}
     	StringBuilder b = new StringBuilder();
-    	for(int i=0; i < numRows; i++)
+    	//first row
+    	for(int i=0; i < width; i = i + a_patern_width)
     	{
-    		for(int j = 0; j < width && b.length() < s.length(); j++)
+    		if(reset[0][i] != 0)
+    			b.append(reset[0][i]);
+    	}
+    	//middle rows
+    	for(int i=1; i < numRows - 1; i++)
+    	{
+    		int gap_1 = a_patern_width - i;
+    		b.append(reset[i][0]);
+    		for(int j=0; j<width; j = j + a_patern_width )
     		{
-    			if(reset[i][j] != 0 )
-    			{
-    				b.append(reset[i][j]);
-    			}
+    			if((j + gap_1)<width &&  reset[i][j + gap_1] != 0)
+    				b.append(reset[i][j + gap_1]);
+    			if((j + a_patern_width)< width && reset[i][j + a_patern_width] != 0)
+    				b.append(reset[i][j + a_patern_width]);
     		}
     	}
+    	//last row
+    	for(int i=0; i < width; i = i + a_patern_width)
+    	{
+    		if(reset[numRows-1][i] != 0)
+    			b.append(reset[numRows-1][i]);
+    	}
+
     	return b.toString();
     }
 }
