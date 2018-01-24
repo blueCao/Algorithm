@@ -16,53 +16,48 @@ public class Problem_77 {
         for(int i = 0; i <  n; i++){
             nodes[i]  = i + 1;
         }
-        return constructDepthTree(nodes,k);
+        List<List<Integer>> result = new ArrayList<List<Integer>> ();
+        List<Integer> q = new ArrayList<>(k);
+        for(int i = 0; i < n; i++){
+            q.add(i);
+            recurese(result,nodes,k,q);
+            q.remove(0);
+        }
+        return result;
     }
 
     /**
-     * 构造生成树，并把指定深度的值填入结果中
-     *
+     * 深度优先，递归搜索
      * @param result
      * @param nodes
      * @param depth
+     * @param q
      */
-    private List<List<Integer>> constructDepthTree(int[] nodes, int depth){
-        if(nodes == null || nodes.length == 0 || depth <= 0) {
-            return null;
+    public void recurese(List<List<Integer>> result, int[] nodes, int depth, List<Integer> q){
+        //退出
+        if(q.size() == 0) {
+            return ;
         }
-        // 值为nodes里头的index索引
-        List<Integer> q = new ArrayList<Integer>(depth);
-        List<List<Integer>> result = new ArrayList<List<Integer>>();
-        q.add(0,0);
+        //深度足够，添加结果
+        if( q.size() == depth ){
+            List<Integer> r = new ArrayList<>(depth);
+            for(int i=0; i < q.size(); i++){
+                r.add(nodes[q.get(i)]);
+            }
+            result.add(r);
+        }
+        //深度 + 1
+        else if(q.size() < depth ){
+            for(int i = q.get(q.size()-1); i < nodes.length - 1; i++ ){
+                q.add(i + 1);
+                recurese(result,nodes,depth,q);
+                q.remove(q.size() - 1);
+            }
+        }
+    }
 
-        //深度优遍历
-        while( q.size() > 0 ){
-            //长度为 depth
-            if( q.size() == depth){
-                List<Integer> r = new ArrayList<Integer>(depth);
-                for(int i = 0; i < depth; i++){
-                    r.add(nodes[q.get(i)]);
-                }
-                //添加一条结果
-                result.add(r);
-                //插入的位置
-                int insert_index = q.size() - 1;
-                int peak_index = q.get(insert_index);
-                //出栈
-                q.remove(insert_index);
-                if(peak_index < depth - 1.){
-                    //入栈
-                    q.add(insert_index,peak_index + 1);
-                }
-            }
-            //长度小于 depth
-            else if(q.size() < depth){
-                int peak_index = q.get(q.size() - 1);
-                //入栈
-                q.add(q.size(),peak_index + 1);
-            }
-        }
-        return result;
+    public static void main(String[] args){
+        System.out.println(new Problem_77().combine(5,3));
     }
 
 }
