@@ -11,36 +11,12 @@ public class Problem_15 {
     public List<List<Integer>> threeSum(int[] nums) {
         //排序
         Arrays.sort(nums);
-        int occur_times=1;
-        List<Integer> filter = new ArrayList<Integer>(nums.length);
-        if(nums.length > 0){
-            filter.add(nums[0]);
-        }
-        //去除3个以上的重复数据
-        for(int i = 1,pre=0; i < nums.length; i++){
-            pre = nums[i-1];
-            if( pre == nums[i]){
-                occur_times++;
-                if(occur_times <= 4){
-                    //保留出现次数大于3个的元素，让其最多出现3个
-                    filter.add(nums[i]);
-                }
-            } else {
-                occur_times = 1;
-                filter.add(nums[i]);
-            }
-        }
-        //保留过滤后的值
-        nums = new int[filter.size()];
-        for(int i=0; i<filter.size(); i++){
-            nums[i] = filter.get(i);
-        }
 
         List<List<Integer>> result = new ArrayList<List<Integer>>();
         for(int i=0; i < nums.length; i++){
             List<Integer> tracks = new ArrayList<Integer>();
             tracks.add(i);
-            DFS(nums,tracks,3,result);
+            DFS(nums,tracks,3,result,nums[i]);
         }
         //过滤
         Set<Trible> set = new HashSet<Trible>(result.size());
@@ -54,28 +30,29 @@ public class Problem_15 {
         }
         return result;
     }
-    private void DFS(int[] nums, List<Integer> tracks, int depth, List<List<Integer>> result){
+    private void DFS(int[] nums, List<Integer> tracks, int depth, List<List<Integer>> result, int sum){
         if(tracks.size() < depth){
+            //剪枝：和大于 0 停止查找，因为nums数组是非递减的排序
+            if(sum > 0){
+                return;
+            }
             for (int i=tracks.get(tracks.size() - 1) + 1; i < nums.length; i++){
                 tracks.add(i);
-                DFS(nums,tracks,3,result);
+                DFS(nums,tracks,3,result,sum + nums[i]);
                 tracks.remove(tracks.size() - 1);
             }
         }else{
-            int sum = 0;
-            for(int i=0; i<depth; i++){
-                sum += nums[tracks.get(i)];
-            }
+            //达到最大深度：停止查找，保留和 0 的结果
             if (sum == 0){
                 List<Integer> r = new ArrayList<Integer>();
                 for(int i=0; i<depth; i++){
                     r.add(nums[tracks.get(i)]);
                 }
-                //TODO：需要去除重复边
                 result.add(r);
             }
         }
     }
+
     class Trible{
         int a;
         int b;
