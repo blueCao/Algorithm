@@ -30,8 +30,6 @@ public class Problem_23 {
         return head.next;
     }
 
-
-
     public ListNode mergeKLists(ListNode[] lists) {
         if(lists.length == 0){
             return null;
@@ -44,7 +42,7 @@ public class Problem_23 {
             LengthNode node = new LengthNode();
             node.node = lists[i];
             int length = 0;
-            ListNode n = node.node.next;
+            ListNode n = node.node;
             while(n !=null){
                 length++;
                 n=n.next;
@@ -55,7 +53,7 @@ public class Problem_23 {
         /**
          * 俩俩归并排序
          */
-        while(lists.length > 1){
+        while(set.size() > 1){
             int min_length_1 = set.get(0).length,min_length_2 = set.get(1).length,min_1_index = 0,min_2_index=1;
             /**
              * 1.找到最短的俩个序列
@@ -68,24 +66,63 @@ public class Problem_23 {
                 min_1_index = 1;
                 min_2_index = 0;
             }
-            for(int i=3; i < set.size(); i++){
+            for(int i=2; i < set.size(); i++){
                 LengthNode node = set.get(i);
-                if(node.length < min_2_index){
-                    if(node.length < min_1_index){
+                if(node.length < min_length_2){
+                    if(node.length < min_length_1){
                         min_length_2 = min_length_1;
                         min_2_index = min_1_index;
-
-                        min_length_1 =
+                        min_length_1 = node.length;
+                        min_1_index = i;
+                    }
+                    else {
+                        min_length_2 = node.length;
+                        min_2_index = i;
                     }
                 }
-
+            }
+            /**
+             * 2.合并这俩最短的序列
+             */
+            ListNode mergered = mergeTwoLists(set.get(min_1_index).node,set.get(min_2_index).node);
+            LengthNode node = new LengthNode();
+            node.node = mergered;
+            int length = 0;
+            ListNode n = node.node;
+            while(n !=null){
+                length++;
+                n=n.next;
+            }
+            node.length=length;
+            /*
+            * 3.将归并的链表加入其中，并删除归并前的2个链表
+             */
+            set.add(node);
+            if(min_2_index > min_1_index){
+                set.remove(min_2_index);
+                set.remove(min_1_index);
+            }else{
+                set.remove(min_1_index);
+                set.remove(min_2_index);
             }
         }
+        return set.get(0).node;
     }
 
     class LengthNode{
         int length=0;
         ListNode node;
+    }
+
+    public static void main(String[] args){
+        ListNode l1 = new ListNode(2);
+        ListNode l2 = null;
+        ListNode l3 = new ListNode(-1);
+        ListNode[] list = new ListNode[3];
+        list[0] = l1;
+        list[1] = l2;
+        list[2] = l3;
+        new Problem_23().mergeKLists(list);
     }
 
 }
