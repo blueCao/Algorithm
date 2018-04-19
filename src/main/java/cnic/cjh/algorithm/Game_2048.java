@@ -8,15 +8,18 @@ import java.util.Scanner;
 public class Game_2048 {
     public static void main(String[] args) {
         int[][] grid = {
-                {0, 2, 0, 0},
-                {2, 0, 2, 0},
-                {0, 2, 0, 2},
-                {2, 0, 0, 0}
+                {0, 0, 0, 2},
+                {0, 0, 2, 16},
+                {4, 0, 4, 2},
+                {2, 2, 2, 16}
         };
         Scanner sc = new Scanner(System.in);
         Game_2048 g = new Game_2048();
         while(true){
-            g.next(grid,sc.nextInt());
+            g.displayMatrix(grid);
+            if(g.next(grid,sc.nextInt()) != 0){
+                break;
+            }
         }
     }
 
@@ -31,29 +34,32 @@ public class Game_2048 {
      *                  2 0 0 0
      *                  0 0 0 4
      *                  0 0 2 4
-     * @return 1: game passed
-     * -1: game failed
-     * 0:  game to be continue
+     * @return
+     *      1: game passed
+     *      -1: game failed because all grid is fulled up
+     *      -2: game failed because there are number > 2048
+     *      0:  game to be continue
      */
     public int next(int[][] grid, int direction) {
         int height = grid.length,
-                width = grid[0].length;
+                width = grid[0].length,
+                result = 0;
         switch (direction) {
             case 1:
-                up(width, height, grid);
+                result = up(width, height, grid);
                 break;
             case 2:
-                down(width, height, grid);
+                result = down(width, height, grid);
                 break;
             case 3:
-                left(width, height, grid);
+                result = left(width, height, grid);
                 break;
             case 4:
-                right(width, height, grid);
+                result = right(width, height, grid);
                 break;
             default:
         }
-        return 0;
+        return result;
     }
 
     /**
@@ -63,7 +69,10 @@ public class Game_2048 {
      * @param height
      * @param grid
      */
-    private void up(int width, int height, int[][] grid) {
+    private int up(int width, int height, int[][] grid) {
+        int[] empty_row_index = new int[height * height],
+                empty_col_index = new int[width * height];
+        int empty_size = 0;
         for (int col = 0; col < width; col++) {
             int pre_index = Integer.MIN_VALUE + 1, pre = Integer.MIN_VALUE + 1;
             // 1. find first none 0 value
@@ -79,6 +88,11 @@ public class Game_2048 {
                 if (grid[row][col] == pre) {
                     grid[pre_index][col] = 0;
                     grid[row][col] = pre * pre;
+                    if(grid[row][col] == 2048){
+                        return 1;
+                    }else if(grid[row][col] > 2048) {
+                        return -2;
+                    }
                     break;
                 } else if (grid[row][col] > 0) {
                     pre = grid[row][col];
@@ -100,7 +114,24 @@ public class Game_2048 {
                     }
                 }
             }
+            // 4. mark 0 position
+            for(int row = pre; row < height && row >=0; row++){
+                empty_row_index[empty_size] = row;
+                empty_col_index[empty_size] = col;
+                empty_size = empty_size + 1;
+            }
         }
+        if(empty_size == 0){
+            if(isGameOve(grid)) {
+                return -1;
+            }else {
+                return 0;
+            }
+        }
+        // randomly choose a  value-0 position and set 2
+        int random_position  = (int)(Math.random() * empty_size);
+        grid[empty_row_index[random_position]][empty_col_index[random_position]] = 2;
+        return 0;
     }
 
     /**
@@ -110,10 +141,11 @@ public class Game_2048 {
      * @param height
      * @param grid
      */
-    private void down(int width, int height, int[][] grid) {
+    private int down(int width, int height, int[][] grid) {
         upsideDown(width, height, grid);
-        up(width, height, grid);
+        int result = up(width, height, grid);
         upsideDown(width, height, grid);
+        return result;
     }
     /**
      * move left
@@ -122,11 +154,12 @@ public class Game_2048 {
      * @param height
      * @param grid
      */
-    private void left(int width, int height, int[][] grid) {
+    private int left(int width, int height, int[][] grid) {
         int[][] tmp = transpose(width, height, grid);
-        up(width, height, tmp);
+        int result = up(width, height, tmp);
         tmp = transpose(width, height, tmp);
         copy(tmp,grid);
+        return result;
     }
     /**
      * move right
@@ -135,12 +168,11 @@ public class Game_2048 {
      * @param height
      * @param grid
      */
-    private void right(int width, int height, int[][] grid) {
+    private int right(int width, int height, int[][] grid) {
         left2Right(width,height,grid);
-        left(width,height,grid);
-        int[][] tmp = transpose(width,height,grid);
-        copy(tmp,grid);
+        int result = left(width,height,grid);
         left2Right(width,height,grid);
+        return result;
     }
 
     /**
@@ -209,5 +241,32 @@ public class Game_2048 {
                 dst[i][j] = src[i][j];
             }
         }
+    }
+
+    private void displayMatrix(int[][] grid){
+        for(int i=0; i<grid.length; i++){
+            for(int j=0; j<grid[i].length; j++){
+                System.out.print(grid[i][j]+" ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+    /**
+     * judge if the grid has the 2 nearby same number
+     *
+     * @param grid
+     * @return
+     */
+    private boolean isGameOve(int[][] grid){
+        for(int i=0; i<grid.length - 1; i++){
+            for(int j=0; j<grid[i].length - 1; j++){
+                if(grid[i][j] == grid[i+1][j] || grid[i][j] == grid[i][j+1]){
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
