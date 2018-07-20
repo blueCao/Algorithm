@@ -1,5 +1,7 @@
 package cnic.cjh.algorithm.leetcode;
 
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
+
 /**
  * https://leetcode.com/problems/n-queens/description/
  - 考虑的问题: 存储、表示、逻辑、遍历
@@ -25,24 +27,29 @@ package cnic.cjh.algorithm.leetcode;
  - 空间复杂度: 单线程最大空间消耗N*N
  */
 public class Problem_52 {
-    public static int counter;
+    public int counter;
 
     public static void main(String []args){
-        System.out.println(new Problem_52().totalNQueens(1));
+//        System.out.println(new Problem_52().totalNQueens(1));
+//        System.out.println(new Problem_52().totalNQueens(2));
+//        System.out.println(new Problem_52().totalNQueens(3));
+//        System.out.println(new Problem_52().totalNQueens(4));
+        System.out.println(new Problem_52().totalNQueens(5));
+
     }
 
     public int totalNQueens(int n){
+        if(n==1){
+            return 1;
+        }
+        counter = 0;
         int[] mark = new int[n];
-        // 1.初始化 -2
-        for(int j=0; j<n; j++){
-            mark[j] = -2;
+        // 1.初始化 -1
+        for(int j=0; j< mark.length; j++){
+            mark[j] = -1;
         }
-        // 2.遍历第1行皇后的每个位置
-        for(int i=0; i<n; i++){
-            mark[i] = 1;
-            travelNext(mark,2);
-            mark[i] = -2;
-        }
+        // 2.遍历
+        travelNext(mark,1);
         return counter;
     }
 
@@ -59,16 +66,15 @@ public class Problem_52 {
             counter++;
         }else {
             // 2.1 未满，找位置填充皇后
-            for(int i=0,j=0; i<mark.length && j< mark.length - nextLine + 1 ; i++){
-                if(mark[i] == -2){
-                    j++;
+            for(int i=0,j=0; i<mark.length; i++){
+                if(mark[i] == -1 && validateDiagonal(mark,nextLine,i)){
                     // 空闲位置,查看在该处放置是否满足条件
                     if(i == 0 ){
                        // 左边界
                         if(nextLine - mark[i+1] != 1){
                             mark[i] = nextLine;
                             travelNext(mark,++nextLine);
-                            mark[i] = -2;
+                            mark[i] = -1;
                             nextLine--;
                         }
                     }else if( i == mark.length - 1){
@@ -76,7 +82,7 @@ public class Problem_52 {
                         if(nextLine - mark[i-1] != 1){
                             mark[i] = nextLine;
                             travelNext(mark,++nextLine);
-                            mark[i] = -2;
+                            mark[i] = -1;
                             nextLine--;
                         }
                     }else{
@@ -84,12 +90,32 @@ public class Problem_52 {
                         if(nextLine - mark[i+1] != 1 && nextLine - mark[i-1] != 1){
                             mark[i] = nextLine;
                             travelNext(mark,++nextLine);
-                            mark[i] = -2;
+                            mark[i] = -1;
                             nextLine--;
                         }
                     }
                 }
             }
         }
+    }
+
+    /**
+     *
+     * 检查对角线是否满足
+     *
+     * @param mark
+     * @param x
+     * @param y
+     * @return
+     */
+    boolean validateDiagonal(int[] mark,int x,int y){
+        for(int i=0; i<mark.length;i++){
+            if(mark[i] != -1){
+                if(  x-y == mark[i] - i || x + y == mark[i] + i){
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
